@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Wifi, WifiOff } from 'lucide-react';
 import { DisconnectScreen } from './animations/DisconnectScreenAnimations';
-import { NeonButton } from './ui/NeonButton';
+import { Button } from './ui/Button';
 
 interface DisconnectScreenOverlayProps {
   isActive: boolean;
@@ -33,13 +33,15 @@ export const DisconnectScreenOverlay: React.FC<DisconnectScreenOverlayProps> = (
         }`}
       >
         {onDismiss && (
-          <NeonButton
+          <Button
             onClick={onDismiss}
             className="flex items-center gap-2"
+            color="primary"
+            variant="solid"
           >
             <X className="w-4 h-4" />
             Dismiss
-          </NeonButton>
+          </Button>
         )}
       </div>
     </div>

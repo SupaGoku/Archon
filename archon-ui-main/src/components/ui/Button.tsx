@@ -1,84 +1,96 @@
 import React from 'react';
-/**
- * Props for the Button component
- */
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+import { motion, HTMLMotionProps } from 'framer-motion';
+import { cn } from '../../lib/utils';
+
+export type ColorOption = 'default' | 'primary' | 'secondary' | 'success' | 'danger' | 'warning';
+export type SizeOption = 'sm' | 'md' | 'lg' | 'xl';
+export type VariantOption = 'solid' | 'outline' | 'ghost';
+
+export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
-  accentColor?: 'purple' | 'green' | 'pink' | 'blue' | 'cyan' | 'orange';
-  neonLine?: boolean;
-  icon?: React.ReactNode;
+  color?: ColorOption;
+  size?: SizeOption;
+  variant?: VariantOption;
+  disabled?: boolean;
+  fullWidth?: boolean;
 }
-/**
- * Button - A customizable button component
- *
- * This component provides a reusable button with various styles,
- * sizes, and color options.
- */
-export const Button: React.FC<ButtonProps> = ({
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   children,
-  variant = 'primary',
+  color = 'default',
   size = 'md',
-  accentColor = 'purple',
-  neonLine = false,
-  icon,
-  className = '',
+  variant = 'solid',
+  disabled = false,
+  fullWidth = false,
+  className,
   ...props
-}) => {
-  // Size variations
+}, ref) => {
+  // Size mappings
   const sizeClasses = {
-    sm: 'text-xs px-3 py-1.5 rounded',
-    md: 'text-sm px-4 py-2 rounded-md',
-    lg: 'text-base px-6 py-2.5 rounded-md'
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg',
+    xl: 'px-8 py-4 text-xl'
   };
-  // Style variations based on variant
-  const variantClasses = {
-    primary: `
-      relative overflow-hidden backdrop-blur-md font-medium
-      bg-${accentColor}-500/80 text-black dark:text-white
-      border border-${accentColor}-500/50 border-t-${accentColor}-300
-      shadow-lg shadow-${accentColor}-500/40 hover:shadow-xl hover:shadow-${accentColor}-500/50
-      group
-    `,
-    secondary: `bg-black/90 border text-white border-${accentColor}-500 text-${accentColor}-400`,
-    outline: `bg-white dark:bg-transparent border text-gray-800 dark:text-white border-${accentColor}-500 hover:bg-${accentColor}-500/10`,
-    ghost: 'bg-transparent text-gray-700 dark:text-white hover:bg-gray-100/50 dark:hover:bg-white/5'
+
+  // Color mappings for each variant
+  const colorClasses = {
+    solid: {
+      default: 'bg-gray-600 hover:bg-gray-700 text-white border-gray-600',
+      primary: 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600',
+      secondary: 'bg-slate-600 hover:bg-slate-700 text-white border-slate-600',
+      success: 'bg-green-600 hover:bg-green-700 text-white border-green-600',
+      danger: 'bg-red-600 hover:bg-red-700 text-white border-red-600',
+      warning: 'bg-amber-600 hover:bg-amber-700 text-white border-amber-600'
+    },
+    outline: {
+      default: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600',
+      primary: 'bg-transparent hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-700',
+      secondary: 'bg-transparent hover:bg-slate-50 dark:hover:bg-slate-900/20 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700',
+      success: 'bg-transparent hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 border-green-300 dark:border-green-700',
+      danger: 'bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-700',
+      warning: 'bg-transparent hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700'
+    },
+    ghost: {
+      default: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+      primary: 'bg-transparent hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400',
+      secondary: 'bg-transparent hover:bg-slate-50 dark:hover:bg-slate-900/20 text-slate-600 dark:text-slate-400',
+      success: 'bg-transparent hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400',
+      danger: 'bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400',
+      warning: 'bg-transparent hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+    }
   };
-  // Neon line color mapping
-  const neonLineColor = {
-    purple: 'bg-purple-500 shadow-[0_0_10px_2px_rgba(168,85,247,0.4)] dark:shadow-[0_0_20px_5px_rgba(168,85,247,0.7)]',
-    green: 'bg-emerald-500 shadow-[0_0_10px_2px_rgba(16,185,129,0.4)] dark:shadow-[0_0_20px_5px_rgba(16,185,129,0.7)]',
-    pink: 'bg-pink-500 shadow-[0_0_10px_2px_rgba(236,72,153,0.4)] dark:shadow-[0_0_20px_5px_rgba(236,72,153,0.7)]',
-    blue: 'bg-blue-500 shadow-[0_0_10px_2px_rgba(59,130,246,0.4)] dark:shadow-[0_0_20px_5px_rgba(59,130,246,0.7)]',
-    cyan: 'bg-cyan-500 shadow-[0_0_10px_2px_rgba(34,211,238,0.4)] dark:shadow-[0_0_20px_5px_rgba(34,211,238,0.7)]',
-    orange: 'bg-orange-500 shadow-[0_0_10px_2px_rgba(249,115,22,0.4)] dark:shadow-[0_0_20px_5px_rgba(249,115,22,0.7)]'
-  };
-  return <button className={`
-        inline-flex items-center justify-center transition-all duration-200
-        ${variantClasses[variant]}
-        ${sizeClasses[size]}
-        ${className}
-      `} {...props}>
-      {/* Luminous inner light source for primary variant */}
-      {variant === 'primary' && <>
-          <div className="absolute left-0 right-0 w-[150%] h-[200%] -translate-x-[25%] -translate-y-[30%] opacity-80 group-hover:opacity-100 rounded-[100%] blur-2xl transition-all duration-500 group-hover:scale-110 luminous-button-glow" style={{
-        background: `radial-gradient(circle, ${accentColor === 'green' ? 'rgba(16, 185, 129, 0.9)' : accentColor === 'blue' ? 'rgba(59, 130, 246, 0.9)' : accentColor === 'pink' ? 'rgba(236, 72, 153, 0.9)' : accentColor === 'cyan' ? 'rgba(34, 211, 238, 0.9)' : accentColor === 'orange' ? 'rgba(249, 115, 22, 0.9)' : 'rgba(168, 85, 247, 0.9)'} 0%, transparent 70%)`,
-        filter: `drop-shadow(0 0 15px ${accentColor === 'green' ? 'rgba(16, 185, 129, 0.8)' : accentColor === 'blue' ? 'rgba(59, 130, 246, 0.8)' : accentColor === 'pink' ? 'rgba(236, 72, 153, 0.8)' : accentColor === 'cyan' ? 'rgba(34, 211, 238, 0.8)' : accentColor === 'orange' ? 'rgba(249, 115, 22, 0.8)' : 'rgba(168, 85, 247, 0.8)'})`
-      }} aria-hidden="true" />
-          {/* Subtle shine effect on top */}
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-white/70 opacity-90" aria-hidden="true" />
-          {/* Enhanced outer glow effect */}
-          <div className="absolute inset-0 rounded-md opacity-50 group-hover:opacity-70" style={{
-        boxShadow: `0 0 20px 5px ${accentColor === 'green' ? 'rgba(16, 185, 129, 0.6)' : accentColor === 'blue' ? 'rgba(59, 130, 246, 0.6)' : accentColor === 'pink' ? 'rgba(236, 72, 153, 0.6)' : accentColor === 'cyan' ? 'rgba(34, 211, 238, 0.6)' : accentColor === 'orange' ? 'rgba(249, 115, 22, 0.6)' : 'rgba(168, 85, 247, 0.6)'}`
-      }} aria-hidden="true" />
-        </>}
-      {/* Content with icon support */}
-      <span className="relative z-10 flex items-center justify-center">
-        {icon && <span className="mr-2">{icon}</span>}
-        {children}
-      </span>
-      {/* Optional neon line below button */}
-      {neonLine && <span className={`absolute bottom-0 left-[15%] right-[15%] w-[70%] mx-auto h-[2px] ${neonLineColor[accentColor]}`}></span>}
-    </button>;
-};
+
+  const baseClasses = cn(
+    'relative inline-flex items-center justify-center',
+    'rounded-md font-medium',
+    'transition-colors duration-200',
+    'focus:outline-none focus:ring-2 focus:ring-offset-2',
+    'focus:ring-gray-500 dark:focus:ring-gray-400',
+    variant !== 'ghost' && 'border',
+    sizeClasses[size],
+    colorClasses[variant][color],
+    fullWidth && 'w-full',
+    disabled && 'opacity-50 cursor-not-allowed',
+    className
+  );
+
+  return (
+    <motion.button
+      ref={ref}
+      className={baseClasses}
+      disabled={disabled}
+      whileHover={!disabled ? { scale: 1.02 } : {}}
+      whileTap={!disabled ? { scale: 0.98 } : {}}
+      transition={{ duration: 0.15 }}
+      {...props}
+    >
+      {children}
+    </motion.button>
+  );
+});
+
+Button.displayName = 'Button';
+
+// Export the old name for backward compatibility
+export const NeonButton = Button;
