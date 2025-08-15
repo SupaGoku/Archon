@@ -175,9 +175,10 @@ app = FastAPI(
 )
 
 # Configure CORS
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",") if os.getenv("ALLOWED_ORIGINS") else ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for testing WebSocket issue
+    allow_origins=allowed_origins,  # Configurable via ALLOWED_ORIGINS env var
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

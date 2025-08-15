@@ -14,11 +14,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Error Handling
 
-**Core Principle**: In alpha, we need to intelligently decide when to fail hard and fast to quickly address issues, and when to allow processes to complete in critical services despite failures. Read below carefully and make intelligent decisions on a case-by-case basis.
+**Core Principle**: In alpha, we need to intelligently decide when to fail hard and fast to quickly address issues, and when to allow processes to complete in critical services despite failures.
 
 #### When to Fail Fast and Loud (Let it Crash!)
-
-These errors should stop execution and bubble up immediately:
 
 - **Service startup failures** - If credentials, database, or any service can't initialize, the system should crash with a clear error
 - **Missing configuration** - Missing environment variables or invalid settings should stop the system
@@ -30,8 +28,6 @@ These errors should stop execution and bubble up immediately:
 
 #### When to Complete but Log Detailed Errors
 
-These operations should continue but track and report failures clearly:
-
 - **Batch processing** - When crawling websites or processing documents, complete what you can and report detailed failures for each item
 - **Background tasks** - Embedding generation, async jobs should finish the queue but log failures
 - **WebSocket events** - Don't crash on a single event failure, log it and continue serving other clients
@@ -40,67 +36,14 @@ These operations should continue but track and report failures clearly:
 
 #### Critical Nuance: Never Accept Corrupted Data
 
-When a process should continue despite failures, it must **skip the failed item entirely** rather than storing corrupted data:
-
-**❌ WRONG - Silent Corruption:**
-
-```python
-try:
-    embedding = create_embedding(text)
-except Exception as e:
-    embedding = [0.0] * 1536  # NEVER DO THIS - corrupts database
-    store_document(doc, embedding)
-```
-
-**✅ CORRECT - Skip Failed Items:**
-
-```python
-try:
-    embedding = create_embedding(text)
-    store_document(doc, embedding)  # Only store on success
-except Exception as e:
-    failed_items.append({'doc': doc, 'error': str(e)})
-    logger.error(f"Skipping document {doc.id}: {e}")
-    # Continue with next document, don't store anything
-```
-
-**✅ CORRECT - Batch Processing with Failure Tracking:**
-
-```python
-def process_batch(items):
-    results = {'succeeded': [], 'failed': []}
-
-    for item in items:
-        try:
-            result = process_item(item)
-            results['succeeded'].append(result)
-        except Exception as e:
-            results['failed'].append({
-                'item': item,
-                'error': str(e),
-                'traceback': traceback.format_exc()
-            })
-            logger.error(f"Failed to process {item.id}: {e}")
-
-    # Always return both successes and failures
-    return results
-```
-
-#### Error Message Guidelines
-
-- Include context about what was being attempted when the error occurred
-- Preserve full stack traces with `exc_info=True` in Python logging
-- Use specific exception types, not generic Exception catching
-- Include relevant IDs, URLs, or data that helps debug the issue
-- Never return None/null to indicate failure - raise an exception with details
-- For batch operations, always report both success count and detailed failure list
+When a process should continue despite failures, it must **skip the failed item entirely** rather than storing corrupted data. Always return both success count and detailed failure list for batch operations.
 
 ### Code Quality
 
-- Remove dead code immediately rather than maintaining it - no backward compatibility or legacy functions
+- Remove dead code immediately rather than maintaining it
 - Prioritize functionality over production-ready patterns
 - Focus on user experience and feature completeness
-- When updating code, don't reference what is changing (avoid keywords like LEGACY, CHANGED, REMOVED), instead focus on comments that document just the functionality of the code
+- When updating code, don't reference what is changing, focus on comments that document just the functionality
 
 ## Architecture Overview
 
@@ -131,6 +74,8 @@ npm run test:coverage    # Run tests with coverage report
 uv sync                  # Install/update dependencies
 uv run pytest            # Run tests
 uv run python -m src.server.main  # Run server locally
+uv run ruff check        # Run linting
+uv run mypy src/         # Run type checking
 
 # With Docker
 docker-compose up --build -d       # Start all services
@@ -187,7 +132,7 @@ Required in `.env`:
 
 ```bash
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_KEY=your-service-key-here
+SUPABASE_SERVICE_KEY=your-service-key-here  # Use legacy service key (the longer one)
 ```
 
 Optional:
@@ -196,6 +141,11 @@ Optional:
 OPENAI_API_KEY=your-openai-key        # Can be set via UI
 LOGFIRE_TOKEN=your-logfire-token      # For observability
 LOG_LEVEL=INFO                         # DEBUG, INFO, WARNING, ERROR
+HOST=localhost                         # Hostname for services
+ARCHON_UI_PORT=3737                   # Custom UI port
+ARCHON_SERVER_PORT=8181               # Custom server port
+ARCHON_MCP_PORT=8051                  # Custom MCP port
+ARCHON_AGENTS_PORT=8052               # Custom agents port
 ```
 
 ## File Organization
