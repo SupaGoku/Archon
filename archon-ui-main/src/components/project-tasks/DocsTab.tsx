@@ -14,6 +14,7 @@ import { MilkdownEditor } from './MilkdownEditor';
 import { VersionHistoryModal } from './VersionHistoryModal';
 import { PRPViewer } from '../prp';
 import { DocumentCard, NewDocumentCard } from './DocumentCard';
+import { API_BASE_URL } from '../../config/api';
 
 
 
@@ -668,7 +669,7 @@ export const DocsTab = ({
     if (!project?.id) return;
     
     try {
-      const response = await fetch(`/api/projects/${project.id}`);
+      const response = await fetch(`${API_BASE_URL}/projects/${project.id}`);
       if (!response.ok) throw new Error('Failed to load project data');
       
       const projectData = await response.json();

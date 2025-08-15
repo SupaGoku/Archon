@@ -66,13 +66,13 @@ const MCPResponseSchema = z.object({
 export type MCPTool = z.infer<typeof MCPToolSchema>;
 export type MCPParameter = z.infer<typeof MCPParameterSchema>;
 
-import { getWebSocketUrl } from '../config/api';
+import { API_BASE_URL, getWebSocketUrl } from '../config/api';
 
 /**
  * MCP Server Service - Handles the Archon MCP server lifecycle via FastAPI
  */
 class MCPServerService {
-  private baseUrl = ''; // Use relative URL to go through Vite proxy
+  private baseUrl = API_BASE_URL; // Use API base URL from config
   private wsUrl = getWebSocketUrl(); // Use WebSocket URL from config
   private logWebSocket: WebSocket | null = null;
   private reconnectTimeout: NodeJS.Timeout | null = null;
@@ -83,7 +83,7 @@ class MCPServerService {
   // ========================================
 
   async startServer(): Promise<ServerResponse> {
-    const response = await fetch(`${this.baseUrl}/api/mcp/start`, {
+    const response = await fetch(`${this.baseUrl}/mcp/start`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
@@ -97,7 +97,7 @@ class MCPServerService {
   }
 
   async stopServer(): Promise<ServerResponse> {
-    const response = await fetch(`${this.baseUrl}/api/mcp/stop`, {
+    const response = await fetch(`${this.baseUrl}/mcp/stop`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
@@ -111,7 +111,7 @@ class MCPServerService {
   }
 
   async getStatus(): Promise<ServerStatus> {
-    const response = await fetch(`${this.baseUrl}/api/mcp/status`);
+    const response = await fetch(`${this.baseUrl}/mcp/status`);
 
     if (!response.ok) {
       throw new Error('Failed to get server status');
@@ -121,7 +121,7 @@ class MCPServerService {
   }
 
   async getConfiguration(): Promise<ServerConfig> {
-    const response = await fetch(`${this.baseUrl}/api/mcp/config`);
+    const response = await fetch(`${this.baseUrl}/mcp/config`);
 
     if (!response.ok) {
       // Return default config if endpoint doesn't exist yet
@@ -136,7 +136,7 @@ class MCPServerService {
   }
 
   async updateConfiguration(config: Partial<ServerConfig>): Promise<ServerResponse> {
-    const response = await fetch(`${this.baseUrl}/api/mcp/config`, {
+    const response = await fetch(`${this.baseUrl}/mcp/config`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
@@ -156,7 +156,7 @@ class MCPServerService {
       params.append('limit', options.limit.toString());
     }
 
-    const response = await fetch(`${this.baseUrl}/api/mcp/logs?${params}`);
+    const response = await fetch(`${this.baseUrl}/mcp/logs?${params}`);
 
     if (!response.ok) {
       throw new Error('Failed to fetch logs');
@@ -167,7 +167,7 @@ class MCPServerService {
   }
 
   async clearLogs(): Promise<ServerResponse> {
-    const response = await fetch(`${this.baseUrl}/api/mcp/logs`, {
+    const response = await fetch(`${this.baseUrl}/mcp/logs`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' }
     });
@@ -188,7 +188,7 @@ class MCPServerService {
     // Close existing connection if any
     this.disconnectLogs();
 
-    const ws = new WebSocket(`${getWebSocketUrl()}/api/mcp/logs/stream`);
+    const ws = new WebSocket(`${getWebSocketUrl()}/mcp/logs/stream`);
     this.logWebSocket = ws;
 
     ws.onmessage = (event) => {

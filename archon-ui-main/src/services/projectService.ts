@@ -165,7 +165,7 @@ export const projectService = {
   async listProjects(): Promise<Project[]> {
     try {
       console.log('[PROJECT SERVICE] Fetching projects from API');
-      const projects = await callAPI<Project[]>('/api/projects');
+      const projects = await callAPI<Project[]>('/projects');
       console.log('[PROJECT SERVICE] Raw API response:', projects);
       console.log('[PROJECT SERVICE] Raw API response length:', projects.length);
       
@@ -203,7 +203,7 @@ export const projectService = {
    */
   async getProject(projectId: string): Promise<Project> {
     try {
-      const project = await callAPI<Project>(`/api/projects/${projectId}`);
+      const project = await callAPI<Project>(`/projects/${projectId}`);
       
       return {
         ...project,
@@ -227,7 +227,7 @@ export const projectService = {
     }
 
     try {
-      const project = await callAPI<Project>('/api/projects', {
+      const project = await callAPI<Project>('/projects', {
         method: 'POST',
         body: JSON.stringify(validation.data)
       });
@@ -261,7 +261,7 @@ export const projectService = {
 
     try {
       console.log('[PROJECT SERVICE] Sending project creation request:', validation.data);
-      const response = await callAPI<{ progress_id: string; status: string; message: string }>('/api/projects', {
+      const response = await callAPI<{ progress_id: string; status: string; message: string }>('/projects', {
         method: 'POST',
         body: JSON.stringify(validation.data)
       });
@@ -295,7 +295,7 @@ export const projectService = {
 
     try {
       console.log(`[PROJECT SERVICE] Sending API request to update project ${projectId}`, validation.data);
-      const project = await callAPI<Project>(`/api/projects/${projectId}`, {
+      const project = await callAPI<Project>(`/projects/${projectId}`, {
         method: 'PUT',
         body: JSON.stringify(validation.data)
       });
@@ -331,7 +331,7 @@ export const projectService = {
    */
   async deleteProject(projectId: string): Promise<void> {
     try {
-      await callAPI(`/api/projects/${projectId}`, {
+      await callAPI(`/projects/${projectId}`, {
         method: 'DELETE'
       });
       
@@ -348,7 +348,7 @@ export const projectService = {
    */
   async getProjectFeatures(projectId: string): Promise<{ features: any[]; count: number }> {
     try {
-      const response = await callAPI<{ features: any[]; count: number }>(`/api/projects/${projectId}/features`);
+      const response = await callAPI<{ features: any[]; count: number }>(`/projects/${projectId}/features`);
       return response;
     } catch (error) {
       console.error(`Failed to get features for project ${projectId}:`, error);
@@ -363,7 +363,7 @@ export const projectService = {
    */
   async getTasksByProject(projectId: string): Promise<Task[]> {
     try {
-      const tasks = await callAPI<Task[]>(`/api/projects/${projectId}/tasks`);
+      const tasks = await callAPI<Task[]>(`/projects/${projectId}/tasks`);
       
       // Convert database tasks to UI tasks with status mapping
       return tasks.map((task: Task) => dbTaskToUITask(task));
@@ -378,7 +378,7 @@ export const projectService = {
    */
   async getTask(taskId: string): Promise<Task> {
     try {
-      const task = await callAPI<Task>(`/api/tasks/${taskId}`);
+      const task = await callAPI<Task>(`/tasks/${taskId}`);
       return dbTaskToUITask(task);
     } catch (error) {
       console.error(`Failed to get task ${taskId}:`, error);
@@ -400,7 +400,7 @@ export const projectService = {
       // The validation.data already has defaults from schema
       const requestData = validation.data;
 
-      const task = await callAPI<Task>('/api/tasks', {
+      const task = await callAPI<Task>('/tasks', {
         method: 'POST',
         body: JSON.stringify(requestData)
       });
@@ -426,7 +426,7 @@ export const projectService = {
     }
 
     try {
-      const task = await callAPI<Task>(`/api/tasks/${taskId}`, {
+      const task = await callAPI<Task>(`/tasks/${taskId}`, {
         method: 'PUT',
         body: JSON.stringify(validation.data)
       });
@@ -456,7 +456,7 @@ export const projectService = {
 
     try {
       // Use the standard update task endpoint with status parameter
-      const task = await callAPI<Task>(`/api/tasks/${taskId}?status=${dbStatus}`, {
+      const task = await callAPI<Task>(`/tasks/${taskId}?status=${dbStatus}`, {
         method: 'PUT'
       });
       
@@ -478,7 +478,7 @@ export const projectService = {
       // Get task info before deletion for broadcasting
       const task = await this.getTask(taskId);
       
-      await callAPI(`/api/tasks/${taskId}`, {
+      await callAPI(`/tasks/${taskId}`, {
         method: 'DELETE'
       });
       
@@ -548,7 +548,7 @@ export const projectService = {
    */
   async listProjectDocuments(projectId: string): Promise<any[]> {
     try {
-      const response = await callAPI<{documents: any[]}>(`/api/projects/${projectId}/docs`);
+      const response = await callAPI<{documents: any[]}>(`/projects/${projectId}/docs`);
       return response.documents || [];
     } catch (error) {
       console.error(`Failed to list documents for project ${projectId}:`, error);
@@ -561,7 +561,7 @@ export const projectService = {
    */
   async getDocument(docId: string): Promise<any> {
     try {
-      const response = await callAPI<{document: any}>(`/api/docs/${docId}`);
+      const response = await callAPI<{document: any}>(`/docs/${docId}`);
       return response.document;
     } catch (error) {
       console.error(`Failed to get document ${docId}:`, error);
@@ -574,7 +574,7 @@ export const projectService = {
    */
   async createDocument(projectId: string, documentData: any): Promise<any> {
     try {
-      const response = await callAPI<{document: any}>(`/api/projects/${projectId}/docs`, {
+      const response = await callAPI<{document: any}>(`/projects/${projectId}/docs`, {
         method: 'POST',
         body: JSON.stringify(documentData)
       });
@@ -590,7 +590,7 @@ export const projectService = {
    */
   async updateDocument(docId: string, updates: any): Promise<any> {
     try {
-      const response = await callAPI<{document: any}>(`/api/docs/${docId}`, {
+      const response = await callAPI<{document: any}>(`/docs/${docId}`, {
         method: 'PUT',
         body: JSON.stringify(updates)
       });
@@ -606,7 +606,7 @@ export const projectService = {
    */
   async deleteDocument(docId: string): Promise<void> {
     try {
-      await callAPI<void>(`/api/docs/${docId}`, { method: 'DELETE' });
+      await callAPI<void>(`/docs/${docId}`, { method: 'DELETE' });
     } catch (error) {
       console.error(`Failed to delete document ${docId}:`, error);
       throw error;
@@ -620,7 +620,7 @@ export const projectService = {
    */
   async getDocumentVersionHistory(projectId: string, fieldName: string = 'docs'): Promise<any[]> {
     try {
-      const response = await callAPI<{versions: any[]}>(`/api/projects/${projectId}/versions?field_name=${fieldName}`);
+      const response = await callAPI<{versions: any[]}>(`/projects/${projectId}/versions?field_name=${fieldName}`);
       return response.versions || [];
     } catch (error) {
       console.error(`Failed to get document version history for project ${projectId}:`, error);
@@ -633,7 +633,7 @@ export const projectService = {
    */
   async getVersionContent(projectId: string, versionNumber: number, fieldName: string = 'docs'): Promise<any> {
     try {
-      const response = await callAPI<{content: any, version: any}>(`/api/projects/${projectId}/versions/${fieldName}/${versionNumber}`);
+      const response = await callAPI<{content: any, version: any}>(`/projects/${projectId}/versions/${fieldName}/${versionNumber}`);
       return response;
     } catch (error) {
       console.error(`Failed to get version ${versionNumber} content for project ${projectId}:`, error);
@@ -646,7 +646,7 @@ export const projectService = {
    */
   async restoreDocumentVersion(projectId: string, versionNumber: number, fieldName: string = 'docs'): Promise<any> {
     try {
-      const response = await callAPI<any>(`/api/projects/${projectId}/versions/${fieldName}/${versionNumber}/restore`, {
+      const response = await callAPI<any>(`/projects/${projectId}/versions/${fieldName}/${versionNumber}/restore`, {
         method: 'POST'
       });
       

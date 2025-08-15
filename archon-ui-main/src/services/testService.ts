@@ -105,7 +105,7 @@ class TestService {
       options: {}
     };
 
-    const response = await callAPI<TestExecution>(`${API_BASE_URL}/tests/mcp/run`, {
+    const response = await callAPI<TestExecution>(`/tests/mcp/run`, {
       method: 'POST',
       body: JSON.stringify(requestBody)
     });
@@ -124,7 +124,7 @@ class TestService {
     console.log('[DEBUG TestService] Request body:', requestBody);
 
     try {
-      const response = await callAPI<TestExecution>(`${API_BASE_URL}/tests/ui/run`, {
+      const response = await callAPI<TestExecution>(`/tests/ui/run`, {
         method: 'POST',
         body: JSON.stringify(requestBody)
       });
@@ -245,7 +245,7 @@ class TestService {
   async hasTestResults(): Promise<boolean> {
     try {
       // Check for latest test results via API
-      const response = await fetch(`${API_BASE_URL}/api/tests/latest-results`);
+      const response = await fetch(`${API_BASE_URL}/tests/latest-results`);
       return response.ok;
     } catch {
       return false;
@@ -258,7 +258,7 @@ class TestService {
   async getCoverageData(): Promise<any> {
     try {
       // Try new API endpoint first
-      const response = await callAPI<any>(`${API_BASE_URL}/coverage/combined-summary`);
+      const response = await callAPI<any>(`/coverage/combined-summary`);
       return response;
     } catch (apiError) {
       // Fallback to static files for backward compatibility
@@ -280,7 +280,7 @@ class TestService {
   async getTestResults(): Promise<any> {
     try {
       // Try new API endpoint first
-      const response = await callAPI<any>(`${API_BASE_URL}/tests/latest-results`);
+      const response = await callAPI<any>(`/tests/latest-results`);
       return response;
     } catch (apiError) {
       // Fallback to static files for backward compatibility
@@ -301,7 +301,7 @@ class TestService {
    */
   async getPytestCoverage(): Promise<any> {
     try {
-      const response = await callAPI<any>(`${API_BASE_URL}/coverage/pytest/json`);
+      const response = await callAPI<any>(`/coverage/pytest/json`);
       return response;
     } catch (error) {
       throw new Error(`Failed to load pytest coverage: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -313,7 +313,7 @@ class TestService {
    */
   async getVitestCoverage(): Promise<any> {
     try {
-      const response = await callAPI<any>(`${API_BASE_URL}/coverage/vitest/summary`);
+      const response = await callAPI<any>(`/coverage/vitest/summary`);
       return response;
     } catch (error) {
       throw new Error(`Failed to load vitest coverage: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -348,7 +348,7 @@ class TestService {
    * Get test execution history
    */
   async getTestHistory(): Promise<TestHistory> {
-    const response = await callAPI<TestHistory>(`${API_BASE_URL}/tests/history`);
+    const response = await callAPI<TestHistory>(`/tests/history`);
     return response;
   }
 
@@ -373,7 +373,7 @@ class TestService {
     // Clean up any existing connection
     this.disconnectFromTestStream(executionId);
 
-    const wsUrl = getWebSocketUrl() + `/api/tests/stream/${executionId}`;
+    const wsUrl = getWebSocketUrl() + `/tests/stream/${executionId}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
