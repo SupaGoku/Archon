@@ -94,3 +94,6 @@ Button.displayName = 'Button';
 
 // Export the old name for backward compatibility
 export const NeonButton = Button;
+
+// Default export for better compatibility
+export default Button;
