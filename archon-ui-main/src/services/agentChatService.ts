@@ -11,7 +11,7 @@ import {
   WebSocketConfig
 } from './socketIOService';
 import { serverHealthService } from './serverHealthService';
-import { getWebSocketUrl } from '../config/api';
+import { getWebSocketUrl, API_BASE_URL } from '../config/api';
 
 export interface ChatMessage {
   id: string;
@@ -58,9 +58,8 @@ class AgentChatService {
   private readonly sessionValidationTTL = 30000; // 30 seconds
 
   constructor() {
-    // In development, the API is proxied through Vite, so we use the same origin
-    // In production, this would be the actual API URL
-    this.baseUrl = '';
+    // Use the configured API base URL
+    this.baseUrl = API_BASE_URL;
   }
 
   /**
@@ -68,7 +67,7 @@ class AgentChatService {
    */
   private getWebSocketUrl(sessionId: string): string {
     // Import is added at the top of the file
-    return `${getWebSocketUrl()}/api/agent-chat/sessions/${sessionId}/ws`;
+    return `${getWebSocketUrl()}/agent-chat/sessions/${sessionId}/ws`;
   }
 
   /**
@@ -135,7 +134,7 @@ class AgentChatService {
    */
   private async checkServerStatus(): Promise<'online' | 'offline'> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/agent-chat/status`, {
+      const response = await fetch(`${this.baseUrl}/agent-chat/status`, {
         method: 'GET',
         timeout: 5000, // 5 second timeout
       } as RequestInit);
@@ -309,7 +308,7 @@ class AgentChatService {
       agent_type: agentType,
     };
     console.log(`[AGENT SERVICE] Creating session with body:`, requestBody);
-    const url = `${this.baseUrl}/api/agent-chat/sessions`;
+    const url = `${this.baseUrl}/agent-chat/sessions`;
     console.log(`[AGENT SERVICE] POST to URL:`, url);
     
     const response = await fetch(url, {
@@ -332,7 +331,7 @@ class AgentChatService {
    * Get chat session details
    */
   async getSession(sessionId: string): Promise<ChatSession> {
-    const response = await fetch(`${this.baseUrl}/api/agent-chat/sessions/${sessionId}`);
+    const response = await fetch(`${this.baseUrl}/agent-chat/sessions/${sessionId}`);
 
     if (!response.ok) {
       throw new Error(`Failed to get chat session: ${response.statusText}`);
@@ -500,7 +499,7 @@ class AgentChatService {
     });
     
     try {
-      const endpoint = `/api/agent-chat/sessions/${sessionId}/ws`;
+      const endpoint = `${API_BASE_URL}/agent-chat/sessions/${sessionId}/ws`;
       console.log(`🔌 Attempting to connect WebSocket to: ${endpoint}`);
       await wsService.connect(endpoint);
       
@@ -557,7 +556,7 @@ class AgentChatService {
     
     try {
       // Try to verify if the session really doesn't exist
-      const response = await fetch(`${this.baseUrl}/api/agent-chat/sessions/${oldSessionId}`);
+      const response = await fetch(`${this.baseUrl}/agent-chat/sessions/${oldSessionId}`);
       
       if (response.status === 403 || response.status === 404) {
         console.log(`✅ Confirmed session ${oldSessionId} is invalid, creating new session`);
