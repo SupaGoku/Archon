@@ -13,6 +13,7 @@
  */
 
 import { io, Socket } from 'socket.io-client';
+import { API_FULL_URL } from '../config/api';
 
 export enum WebSocketState {
   CONNECTING = 'CONNECTING',
@@ -143,8 +144,8 @@ export class WebSocketService {
     // Use relative URL to go through Vite's proxy
     const socketPath = '/socket.io/';  // Use default Socket.IO path
     
-    // Use window.location.origin to ensure we go through the proxy
-    const connectionUrl = window.location.origin;
+    // Use API URL for Socket.IO connection - in production this points to api.archon.trashpanda.finance
+    const connectionUrl = API_FULL_URL || window.location.origin;
     
     try {
       console.log('🔗 Attempting Socket.IO connection to:', connectionUrl);
