@@ -23,9 +23,7 @@ import {
 } from '../lib/projectSchemas';
 
 import { dbTaskToUITask, uiStatusToDBStatus } from '../types/project';
-
-// API configuration - use relative URL to go through Vite proxy
-const API_BASE_URL = '/api';
+import { API_BASE_URL } from '../config/api';
 
 // WebSocket connection for real-time updates
 let websocketConnection: WebSocket | null = null;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { X, BarChart, AlertCircle, CheckCircle, Activity, RefreshCw, ExternalLink } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { API_BASE_URL } from '../../config/api'
 
 interface CoverageSummary {
   total: {
@@ -47,7 +48,7 @@ export function CoverageModal({ isOpen, onClose }: CoverageModalProps) {
     setError(null)
     
     try {
-      const response = await fetch('/api/generate-coverage', {
+      const response = await fetch(`${API_BASE_URL}/generate-coverage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       })

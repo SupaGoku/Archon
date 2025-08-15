@@ -68,7 +68,7 @@ export interface DatabaseMetrics {
   last_sync: string;
 }
 
-const API_BASE_URL = '/api';
+import { API_BASE_URL } from '../config/api';
 
 // Retry wrapper for transient errors
 export async function retry<T>(fn: () => Promise<T>, retries = 3, delay = 500): Promise<T> {

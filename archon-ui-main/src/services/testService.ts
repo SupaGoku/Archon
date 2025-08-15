@@ -39,10 +39,7 @@ export interface TestStatus {
   exit_code?: number;
 }
 
-import { getApiUrl, getWebSocketUrl } from '../config/api';
-
-// Use unified API configuration
-const API_BASE_URL = getApiUrl();
+import { getApiUrl, getWebSocketUrl, API_BASE_URL } from '../config/api';
 
 // Error class for test service errors
 export class TestServiceError extends Error {
@@ -108,7 +105,7 @@ class TestService {
       options: {}
     };
 
-    const response = await callAPI<TestExecution>('/api/tests/mcp/run', {
+    const response = await callAPI<TestExecution>(`${API_BASE_URL}/tests/mcp/run`, {
       method: 'POST',
       body: JSON.stringify(requestBody)
     });
@@ -127,7 +124,7 @@ class TestService {
     console.log('[DEBUG TestService] Request body:', requestBody);
 
     try {
-      const response = await callAPI<TestExecution>('/api/tests/ui/run', {
+      const response = await callAPI<TestExecution>(`${API_BASE_URL}/tests/ui/run`, {
         method: 'POST',
         body: JSON.stringify(requestBody)
       });
@@ -147,7 +144,7 @@ class TestService {
     onError?: (error: Error) => void,
     onComplete?: () => void
   ): Promise<string> {
-    return this.runTestsWithEndpoint('/api/run-tests-with-coverage', onMessage, onError, onComplete);
+    return this.runTestsWithEndpoint(`${API_BASE_URL}/run-tests-with-coverage`, onMessage, onError, onComplete);
   }
 
   /**
@@ -261,7 +258,7 @@ class TestService {
   async getCoverageData(): Promise<any> {
     try {
       // Try new API endpoint first
-      const response = await callAPI<any>('/api/coverage/combined-summary');
+      const response = await callAPI<any>(`${API_BASE_URL}/coverage/combined-summary`);
       return response;
     } catch (apiError) {
       // Fallback to static files for backward compatibility
@@ -283,7 +280,7 @@ class TestService {
   async getTestResults(): Promise<any> {
     try {
       // Try new API endpoint first
-      const response = await callAPI<any>('/api/tests/latest-results');
+      const response = await callAPI<any>(`${API_BASE_URL}/tests/latest-results`);
       return response;
     } catch (apiError) {
       // Fallback to static files for backward compatibility
@@ -304,7 +301,7 @@ class TestService {
    */
   async getPytestCoverage(): Promise<any> {
     try {
-      const response = await callAPI<any>('/api/coverage/pytest/json');
+      const response = await callAPI<any>(`${API_BASE_URL}/coverage/pytest/json`);
       return response;
     } catch (error) {
       throw new Error(`Failed to load pytest coverage: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -316,7 +313,7 @@ class TestService {
    */
   async getVitestCoverage(): Promise<any> {
     try {
-      const response = await callAPI<any>('/api/coverage/vitest/summary');
+      const response = await callAPI<any>(`${API_BASE_URL}/coverage/vitest/summary`);
       return response;
     } catch (error) {
       throw new Error(`Failed to load vitest coverage: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -328,7 +325,7 @@ class TestService {
    */
   getCoverageHtmlUrl(): string {
     // Return URL to pytest coverage HTML report via new API endpoint
-    return '/api/coverage/pytest/html/index.html';
+    return `${API_BASE_URL}/coverage/pytest/html/index.html`;
   }
 
   /**
@@ -336,7 +333,7 @@ class TestService {
    */
   getVitestCoverageHtmlUrl(): string {
     // Return URL to vitest coverage HTML report via new API endpoint
-    return '/api/coverage/vitest/html/index.html';
+    return `${API_BASE_URL}/coverage/vitest/html/index.html`;
   }
 
   /**
@@ -351,7 +348,7 @@ class TestService {
    * Get test execution history
    */
   async getTestHistory(): Promise<TestHistory> {
-    const response = await callAPI<TestHistory>('/api/tests/history');
+    const response = await callAPI<TestHistory>(`${API_BASE_URL}/tests/history`);
     return response;
   }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { X, BarChart, AlertCircle, CheckCircle, XCircle, Activity, RefreshCw, ExternalLink, TestTube, Target, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CoverageVisualization, CoverageData } from './CoverageVisualization'
+import { API_BASE_URL } from '../../config/api'
 
 interface TestResults {
   summary: {
@@ -420,7 +421,7 @@ export function TestResultsModal({ isOpen, onClose }: TestResultsModalProps) {
                     Refresh
                   </button>
                   <button
-                    onClick={() => window.open('/api/coverage/pytest/html/index.html', '_blank')}
+                    onClick={() => window.open(`${API_BASE_URL}/coverage/pytest/html/index.html`, '_blank')}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
                   >
                     <ExternalLink className="w-4 h-4" />
